@@ -10,7 +10,7 @@ import * as Utils from './utils'
 
 export { Config }
 
-export const name = 'memes-api'
+export const name = 'memes-api-qq'
 
 export const usage = `
 <style>

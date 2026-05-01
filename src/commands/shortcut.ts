@@ -88,9 +88,11 @@ export async function apply(ctx: Context, config: Config) {
       return ''
     })()
 
+    const atRegex = config.shortcutIgnoreAt ? '(?:<at[^>]+>\\s*)?' : ''
+
     for (const shortcut of shortcuts) {
       const { name, pattern } = shortcut
-      const res = new RegExp(`^${cmdPrefixRegex}${pattern}`).exec(content)
+      const res = new RegExp(`^${atRegex}${cmdPrefixRegex}${pattern}`).exec(content)
       if (res) {
         ;(session.memesApi ??= {}).shortcut = true
         return session.execute(

@@ -6,6 +6,7 @@ import zhCNLocale from './locales/zh-CN.yml'
 export interface GenerateCommandConfig {
   enableShortcut: boolean
   shortcutUsePrefix?: boolean
+  shortcutIgnoreAt?: boolean
   silentShortcut?: boolean
   moreSilent?: boolean
   autoUseDefaultTexts: boolean
@@ -52,6 +53,7 @@ const shortcutCmdCfgWithSilent = Schema.intersect([
     Schema.object({
       enableShortcut: Schema.const(true),
       shortcutUsePrefix: Schema.boolean().default(true),
+      shortcutIgnoreAt: Schema.boolean().default(true),
       silentShortcut: Schema.boolean().default(false),
     }),
     Schema.object({}),
