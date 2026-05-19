@@ -113,7 +113,24 @@ export async function apply(ctx: Context, config: Config) {
         continue
       }
 
-      const el = [h.image(await res.arrayBuffer(), res.type)]
+      const buffer = Buffer.from(await res.arrayBuffer())
+
+      if (session.platform === 'qq' && config.enableQQNativeMarkdown) {
+        let mdText = config.randomMemeShowInfo 
+           ? `> 本次随机模版：**${formatKeywords(info.keywords)}**`
+           : `> 随机生成完毕`
+
+        const buttons = [
+          { id: '1', render_data: { label: '再来一张', visited_label: '再来一张', style: 1 }, action: { type: 2, permission: { type: 2 }, data: '/memes-api.random', enter: true } },
+          { id: '2', render_data: { label: '此模版详情', visited_label: '此模版详情', style: 0 }, action: { type: 2, permission: { type: 2 }, data: `/memes-api.info ${info.key}`, enter: true } }
+        ]
+        
+        const title = '随机生成'
+        const sent = await require('../utils/qq-native').sendQQNativeMarkdownAndButtons(ctx, session, config, title, mdText, buttons, buffer)
+        if (sent) return
+      }
+
+      const el = [h.image(buffer, res.type)]
       if (config.randomMemeShowInfo) {
         el.unshift(
           ...session.i18n('memes-api.random.info', [formatKeywords(info.keywords)]),

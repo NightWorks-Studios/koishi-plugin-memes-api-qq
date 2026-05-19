@@ -95,6 +95,8 @@ export async function apply(ctx: Context, config: Config) {
     const texts: string[] = []
     const names: string[] = []
 
+    const quoteSrcs = new Set<string>()
+
     // append images from quote
     if (session.quote?.elements) {
       const visit = (e: h) => {
@@ -103,7 +105,10 @@ export async function apply(ctx: Context, config: Config) {
         }
         if (e.type === 'img') {
           const src = e.attrs.src
-          if (src) imageInfos.push({ src })
+          if (src) {
+            imageInfos.push({ src })
+            quoteSrcs.add(src)
+          }
         }
       }
       for (const child of session.quote.elements) visit(child)
@@ -136,6 +141,9 @@ export async function apply(ctx: Context, config: Config) {
     }
 
     const visit = (e: h) => {
+      // 避免重复处理已经在前面被显式处理过的 quote 元素
+      if (e.type === 'quote') return
+
       if (e.children.length) {
         for (const child of e.children) visit(child)
       }
@@ -150,7 +158,14 @@ export async function apply(ctx: Context, config: Config) {
       switch (e.type) {
         case 'img': {
           const src = e.attrs.src
-          if (src) imageInfos.push({ src })
+          if (src) {
+            // 如果这个图片是在 quote 中出现过的，说明是 OneBot 平台的遗留特性（在消息体自带引用内容），去重过滤跳过一次
+            if (quoteSrcs.has(src)) {
+              quoteSrcs.delete(src)
+            } else {
+              imageInfos.push({ src })
+            }
+          }
           break
         }
         case 'at': {
@@ -306,6 +321,9 @@ export async function apply(ctx: Context, config: Config) {
     for (const kw of keywords) {
       try {
         subCmd.alias(`.${kw}`)
+        if (config.enableShortcut) {
+          subCmd.alias(kw)
+        }
       } catch (e) {
         ctx.logger.warn(`Failed to register alias ${kw} for meme ${key}`)
         ctx.logger.warn(e)
@@ -360,6 +378,24 @@ export async function apply(ctx: Context, config: Config) {
       }
 
       if (!checkInRange(imageInfos.length, minImages, maxImages)) {
+        if (imageInfos.length > 0) {
+           const debugMsgs = imageInfos.map((info, idx) => {
+             if ('src' in info) return `图片 ${idx + 1}: ${info.src}`
+             if ('userId' in info) return `图片 ${idx + 1}: 用户 ${info.userId}`
+             return `图片 ${idx + 1}: 未知`
+           }).join('\n')
+           await session.send(`[DEBUG] 检测到图片数量不符(${imageInfos.length}张)，捕获的图片信息如下：\n` + debugMsgs)
+           
+           for (const info of imageInfos) {
+             if ('src' in info) await session.send(h.image(info.src))
+             if ('userId' in info) {
+               try {
+                 const { url } = await ctx.$.getInfoFromID(session, info.userId)
+                 await session.send(h.image(url))
+               } catch(e) {}
+             }
+           }
+        }
         return config.silentShortcut && session.memesApi.shortcut
           ? undefined
           : session.text('memes-api.errors.image-number-mismatch', [
@@ -389,7 +425,23 @@ export async function apply(ctx: Context, config: Config) {
       } catch (e) {
         return ctx.$.handleRenderError(session, e)
       }
-      return h.image(await res.arrayBuffer(), res.type)
+
+      const buffer = Buffer.from(await res.arrayBuffer())
+
+      if (session.platform === 'qq' && config.enableQQNativeMarkdown) {
+        let mdText = `> **${meme.key}** 绘制完毕！`
+
+        const buttons = [
+          { id: '1', render_data: { label: '再来一张', visited_label: '再来一张', style: 1 }, action: { type: 2, permission: { type: 2 }, data: `/memes-api.generate ${meme.key} ${texts.join(' ')}`.trim(), enter: true } },
+          { id: '2', render_data: { label: '换个模版随机', visited_label: '换个模版随机', style: 0 }, action: { type: 2, permission: { type: 2 }, data: `/memes-api.random`, enter: true } }
+        ]
+        
+        const title = '绘制完毕'
+        const sent = await require('../utils/qq-native').sendQQNativeMarkdownAndButtons(ctx, session, config, title, mdText, buttons, buffer)
+        if (sent) return
+      }
+
+      return h.image(buffer, res.type)
     })
   }
 

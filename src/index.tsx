@@ -58,7 +58,7 @@ v2 版本将仅支持 meme-generator-rs，如要使用旧版 meme-generator，�
 
 export const inject = {
   required: ['http'],
-  optional: ['notifier'],
+  optional: ['notifier', 'server.temp'],
 }
 
 export interface MemePublic {

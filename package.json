@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-memes-api-qq",
   "description": "表情包制作插件调用 API 版 For QQ",
-  "version": "2.1.9",
+  "version": "2.1.11",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -54,7 +54,7 @@
     "koishi": "^4.18.9"
   },
   "dependencies": {
-    "meme-generator-rs-api": "workspace:^",
+    "meme-generator-rs-api": "^0.1.4",
     "p-limit": "^7.2.0"
   },
   "optionalDependencies": {

@@ -45,7 +45,24 @@ export async function apply(ctx: Context, config: Config) {
       return ctx.$.handleError(session, e)
     }
 
-    const msgParams = [h.image(await imgBlob.arrayBuffer(), imgBlob.type)]
+    const buffer = Buffer.from(await imgBlob.arrayBuffer())
+
+    if (session.platform === 'qq' && config.enableQQNativeMarkdown) {
+      const allKeys = Object.keys(ctx.$.infos)
+      const randomMeme = allKeys[Math.floor(Math.random() * allKeys.length)]
+      const title = '表情包列表'
+      const mdText = `### 模版列表\n> 共查询到 ${allKeys.length} 种表情包模版。`
+      
+      const buttons = [
+        { id: '1', render_data: { label: '随机生成', visited_label: '随机生成', style: 1 }, action: { type: 2, permission: { type: 2 }, data: '/memes-api.random', enter: true } },
+        { id: '2', render_data: { label: '随机详情', visited_label: '随机详情', style: 0 }, action: { type: 2, permission: { type: 2 }, data: `/memes-api.info ${randomMeme}`, enter: true } }
+      ]
+      
+      const sent = await require('../utils/qq-native').sendQQNativeMarkdownAndButtons(ctx, session, config, title, mdText, buttons, buffer)
+      if (sent) return
+    }
+
+    const msgParams = [h.image(buffer, imgBlob.type)]
     return config.enableShortcut
       ? session.i18n('memes-api.list.tip', msgParams)
       : session.i18n('memes-api.list.tip-no-shortcut', msgParams)

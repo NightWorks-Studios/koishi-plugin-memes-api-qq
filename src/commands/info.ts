@@ -65,9 +65,21 @@ export async function apply(ctx: Context, config: Config) {
         } catch (e) {
           return ctx.$.handleError(session, e)
         }
+        const buffer = Buffer.from(await img.arrayBuffer())
+        
+        if (session.platform === 'qq' && config.enableQQNativeMarkdown) {
+          const title = '查询结果多重匹配'
+          const mdText = `### 查询结果匹配多个\n> 找到多个相关的内容，请参考预览列表。`
+          const buttons = [
+            { id: '1', render_data: { label: '查看全部模版', visited_label: '查看全部模版', style: 0 }, action: { type: 2, permission: { type: 2 }, data: '/memes-api.list', enter: true } }
+          ]
+          const sent = await require('../utils/qq-native').sendQQNativeMarkdownAndButtons(ctx, session, config, title, mdText, buttons, buffer)
+          if (sent) return
+        }
+
         return [
           ...session.i18n('memes-api.info.multiple-tip-head'),
-          h.image(await img.arrayBuffer(), img.type),
+          h.image(buffer, img.type),
           ...session.i18n('memes-api.info.multiple-tip-tail'),
         ]
       }
@@ -134,6 +146,24 @@ export async function apply(ctx: Context, config: Config) {
     } catch (e) {
       return ctx.$.handleError(session, e)
     }
+
+    const rawNodes = listFlatJoin(msg, ['\n'])
+
+    if (session.platform === 'qq' && config.enableQQNativeMarkdown) {
+      const plainText = rawNodes.map(x => typeof x === 'string' ? x : x.toString(true)).join('')
+      const title = `模版详情: ${info.key}`
+      let mdText = `### 模版详情：${info.key}\n\n` + plainText.split('\n').filter(Boolean).map(l => `> ${l}`).join('\n')
+      
+      const buttons = [
+        { id: '1', render_data: { label: '试用此模版', visited_label: '试用此模版', style: 1 }, action: { type: 2, permission: { type: 2 }, data: `/memes-api.generate ${info.key} `, enter: false } },
+        { id: '2', render_data: { label: '全部模版', visited_label: '全部模版', style: 0 }, action: { type: 2, permission: { type: 2 }, data: `/memes-api.list`, enter: true } }
+      ]
+      
+      const buffer = Buffer.from(await previewImg.arrayBuffer())
+      const sent = await require('../utils/qq-native').sendQQNativeMarkdownAndButtons(ctx, session, config, title, mdText, buttons, buffer)
+      if (sent) return
+    }
+
     msg.push(
       session.i18n('memes-api.info.preview', [
         h.image(await previewImg.arrayBuffer(), previewImg.type),

@@ -12,6 +12,8 @@ export interface GenerateCommandConfig {
   autoUseDefaultTexts: boolean
   autoUseSenderAvatarWhenOnlyOne: boolean
   autoUseSenderAvatarWhenOneLeft: boolean
+  enableQQNativeMarkdown: boolean
+  enableQQInteractiveButtons: boolean
 }
 
 export enum NewStrategy {
@@ -76,8 +78,10 @@ export const GenerateCommandConfig: Schema<GenerateCommandConfig> = Schema.inter
     autoUseDefaultTexts: Schema.boolean().default(true),
     autoUseSenderAvatarWhenOnlyOne: Schema.boolean().default(true),
     autoUseSenderAvatarWhenOneLeft: Schema.boolean().default(true),
+    enableQQNativeMarkdown: Schema.boolean().default(true).description('是否使用原生 Markdown 卡片发送结果文本。'),
+    enableQQInteractiveButtons: Schema.boolean().default(true).description('是否在消息底端附带方便的交互按钮。'),
   }),
-])
+]) as any
 
 export const ListConfig: Schema<ListConfig> = Schema.object({
   listSortByRs: Schema.union(memeListSortByVals).default('keywords_pinyin'),
