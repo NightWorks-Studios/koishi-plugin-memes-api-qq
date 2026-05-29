@@ -7,6 +7,7 @@ export interface GenerateCommandConfig {
   enableShortcut: boolean
   shortcutUsePrefix?: boolean
   shortcutIgnoreAt?: boolean
+  shortcutExclude?: string[]
   silentShortcut?: boolean
   moreSilent?: boolean
   autoUseDefaultTexts: boolean
@@ -54,6 +55,7 @@ const shortcutCmdCfgWithSilent = Schema.intersect([
   Schema.union([
     Schema.object({
       enableShortcut: Schema.const(true),
+      shortcutExclude: Schema.array(Schema.string()).default([]),
       shortcutUsePrefix: Schema.boolean().default(true),
       shortcutIgnoreAt: Schema.boolean().default(true),
       silentShortcut: Schema.boolean().default(false),

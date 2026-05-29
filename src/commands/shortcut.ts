@@ -29,6 +29,7 @@ export async function apply(ctx: Context, config: Config) {
     const tmpRegExps: ShortcutInfo[] = []
 
     for (const name in ctx.$.infos) {
+      if (config.shortcutExclude?.includes(name)) continue
       const info = ctx.$.infos[name]
       info.keywords.forEach((keyword) => {
         tmpKeywords.push({ name, keyword })

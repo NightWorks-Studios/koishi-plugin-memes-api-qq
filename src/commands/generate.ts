@@ -315,13 +315,14 @@ export async function apply(ctx: Context, config: Config) {
 
   const registerGenerateCmd = (meme: MemeInfo) => {
     const { key, keywords } = meme
+    const excluded = config.shortcutExclude?.includes(key)
 
     const subCmd: Command<never, never, [h[], ...string[]], any> =
       cmdGenerate.subcommand(`.${key} [args:el]`, { strictOptions: true, hidden: true })
     for (const kw of keywords) {
       try {
         subCmd.alias(`.${kw}`)
-        if (config.enableShortcut) {
+        if (config.enableShortcut && !excluded) {
           subCmd.alias(kw)
         }
       } catch (e) {

@@ -87,7 +87,11 @@ _config:
           enableShortcut: |-
             是否注册类似原版 `memes` 插件的触发指令。  
             例：`meme generate 5000兆 我去 洛天依` -> `5000兆 我去 洛天依`
-        - shortcutUsePrefix: 表情生成快捷指令是否需要携带指令前缀。
+        - shortcutExclude: |-
+            不注册快捷指令别名的表情列表（填写表情 key）。  
+            用于避免某些表情的关键词与其他插件指令名冲突。
+          shortcutUsePrefix: 表情生成快捷指令是否需要携带指令前缀。
+          shortcutIgnoreAt: 快捷指令匹配时是否忽略消息开头的 AT 元素。
           silentShortcut: 是否禁用使用原版触发指令时的 参数错误提示。
       - moreSilent: 是否禁用使用原版触发指令时的 **所有** 错误提示。
     - autoUseDefaultTexts: 是否在用户未提供文字时自动使用默认文字。
