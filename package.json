@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-memes-api-qq",
   "description": "表情包制作插件调用 API 版 For QQ",
-  "version": "2.1.12",
+  "version": "2.1.13",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -12,6 +12,7 @@
   "author": "LgCookie <lgc2333@126.com>",
   "homepage": "https://github.com/lgc-KoiDev/koishi-plugin-memes-api",
   "scripts": {
+    "build": "tsc -b",
     "build:console": "koishi-console build"
   },
   "keywords": [
@@ -61,5 +62,10 @@
     "@koishijs/plugin-help": "^2.4.6",
     "@koishijs/plugin-notifier": "^1.2.1",
     "koishi-plugin-adapter-onebot": "^6.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "yml-register": "^1.3.0"
   }
 }

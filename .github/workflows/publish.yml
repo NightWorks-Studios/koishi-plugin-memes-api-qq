@@ -28,7 +28,7 @@ jobs:
         run: npm install
 
       - name: Build
-        run: npx tsc -b
+        run: npm run build
 
       - name: Verify package contents
         run: |
