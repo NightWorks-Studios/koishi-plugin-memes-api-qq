@@ -32,7 +32,8 @@ jobs:
 
       - name: Verify package contents
         run: |
-          test -d lib
+          test -f lib/index.js
+          test -f lib/index.d.ts
           npm pack --dry-run
 
       - name: Publish to npm with provenance
