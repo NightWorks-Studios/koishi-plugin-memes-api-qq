@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-memes-api-qq",
   "description": "表情包制作插件调用 API 版 For QQ",
-  "version": "2.1.14",
+  "version": "2.1.15",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -10,7 +10,11 @@
   ],
   "license": "MIT",
   "author": "LgCookie <lgc2333@126.com>",
-  "homepage": "https://github.com/lgc-KoiDev/koishi-plugin-memes-api",
+  "homepage": "https://github.com/NightWorks-Studios/koishi-plugin-memes-api-qq",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NightWorks-Studios/koishi-plugin-memes-api-qq"
+  },
   "scripts": {
     "build": "tsc -b",
     "build:console": "koishi-console build"
